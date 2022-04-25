@@ -39,7 +39,7 @@ public final class MyModelFactory implements Factory<Model> {
 		@Override
 		public void registerObserver(@Nonnull Observer observer) {
 			if(observers.contains(observer))
-				throw new IllegalArgumentException("This observer is already registered!");
+				throw new IllegalArgumentException("the observer has been register");
 			if(observer == null)
 				throw new NullPointerException();
 			observers.add(observer);
@@ -50,7 +50,7 @@ public final class MyModelFactory implements Factory<Model> {
 			if(observer == null)
 				throw new NullPointerException();
 			if(!observers.contains(observer))
-				throw new IllegalArgumentException("Not a registered observer");
+				throw new IllegalArgumentException("no observer be register");
 			observers.remove(observer);
 		}
 
@@ -66,10 +66,11 @@ public final class MyModelFactory implements Factory<Model> {
 
 			this.state = this.state.advance(move);
 
-			if(state.getWinner().isEmpty()){
-				event = Observer.Event.MOVE_MADE;}
+			if(!state.getWinner().isEmpty()){
+				event = Observer.Event.GAME_OVER;
+				}
 
-			else {event = Observer.Event.GAME_OVER;}
+			else {event = Observer.Event.MOVE_MADE;}
 
 			for(Observer observer : observers){
 				observer.onModelChanged(this.state,event);}
@@ -81,7 +82,7 @@ public final class MyModelFactory implements Factory<Model> {
 										  Player mrX,
 										  ImmutableList<Player> detectives) {
 
-		MyModel myModel = new MyModel(setup, mrX, detectives);
-		return myModel;
+		MyModel mymodel = new MyModel(setup, mrX, detectives);
+		return mymodel;
 	}
 }
