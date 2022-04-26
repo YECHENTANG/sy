@@ -62,6 +62,7 @@ public final class MyModelFactory implements Factory<Model> {
 
 		@Override
 		public void chooseMove(@Nonnull Move move) {
+
 			Observer.Event event;
 
 			this.state = this.state.advance(move);
@@ -77,6 +78,7 @@ public final class MyModelFactory implements Factory<Model> {
 
 		}
 	}
+
 
 	@Nonnull @Override public Model build(GameSetup setup,
 										  Player mrX,

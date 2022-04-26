@@ -19,7 +19,7 @@ public final class MyGameStateFactory implements Factory<GameState> {
 		for(int j = 0; j < detectives.size() - 1 ; j++)
 			{
 			if(detectives.get(j).location() == detectives.get(j+1).location())
-			throw new IllegalArgumentException("some player on some location");
+			throw new IllegalArgumentException(" player on some location");
 		}
 
 	}
@@ -77,14 +77,6 @@ public final class MyGameStateFactory implements Factory<GameState> {
 //--------------------------------------------------loction
 			RepeatedPositioning(detectives);
 //--------------------------------------------------winner
-			/*Set<Piece> win = new HashSet<>();
-			if(mrxWins())
-				win.add(mrX.piece());
-			if(detectivesWin()){
-				for(Player x : detectives)
-					win.add(x.piece());
-			}*/
-//ImmutableSet.copyOf(win);
 			this.winner = winerget();
 
 		}
@@ -237,7 +229,7 @@ private static ImmutableSet<Move.SingleMove> makeSingleMoves(
 
 			Set<Move.DoubleMove> doublemoves = new HashSet<>();
 
-			if(this.remaining.contains(mrX.piece()) && mrX.has(ScotlandYard.Ticket.DOUBLE)&&this.log.size() +2 <=setup.moves.size()){
+			if(this.remaining.contains(mrX.piece()) && mrX.has(ScotlandYard.Ticket.DOUBLE)&&this.log.size()+2 <=setup.moves.size()){
 
 				doublemoves = new HashSet<>(makeDoubleMoves(setup, detectives, mrX, mrX.location()));
 
@@ -268,14 +260,7 @@ private static ImmutableSet<Move.SingleMove> makeSingleMoves(
 			return Log;
 		}
 
-		private Set<Piece> changetoSet(List<Player> everyone){
-			Set<Piece> pieces = new HashSet<>();
-			for(Player x : everyone)
-				pieces.add(x.piece());
-
-			return pieces;
-		}
-//--------------------------------------------visitor pattern for get destination after single or double move
+//--------------------------------------------
 		private int visitMe(Move move){
 
 			return move.accept(new Move.Visitor<>(){
@@ -299,7 +284,7 @@ private static ImmutableSet<Move.SingleMove> makeSingleMoves(
 			if(!moves.contains(move)) throw new IllegalArgumentException("Illegal move: "+move);
 
 			List<Player> detectiveList = new ArrayList<>();
-			Set<Piece> remain =new HashSet<>(this.remaining);
+			List<Piece> remain =new ArrayList<>(this.remaining);
 			List<LogEntry> Log = new ArrayList<>(this.log);
 			Player MRX =this.mrX;
 
@@ -315,7 +300,6 @@ private static ImmutableSet<Move.SingleMove> makeSingleMoves(
 					if(move.commencedBy().isMrX()){
 						Log = updatelog(move,location);
 					}
-
 				}
 				if (p.isDetective()){
 				detectiveList.add(p);}
@@ -324,35 +308,31 @@ private static ImmutableSet<Move.SingleMove> makeSingleMoves(
 				}
 
 			}
-
-
+//----------------------------------use add and remove to achieve round change
 			if(remain.size() == 1 ){
 				if (remain.contains(this.mrX.piece())){
-					remain = changetoSet(detectiveList);
+					for (Player player : detectiveList) {
+						remain.add(player.piece());
+					}
 					remain.remove(move.commencedBy());
 				}
 					else{
-					remain = changetoSet(detectiveList);
 					remain.add(MRX.piece());
-					for(Player p : detectives)
-						remain.remove(p.piece());
+					remain.remove(move.commencedBy());
 				}
 
 			}
 			else {
 				remain.remove(move.commencedBy());
 			}
-
-
+//-------------------------------------
 			for(Player p : detectives){
 				if(makeSingleMoves(setup,detectives,p,p.location()).isEmpty()){
 					remain.remove(p.piece());
 					}
 			}
 
-
 			if(move.commencedBy().isDetective()){
-
 				for(ScotlandYard.Ticket t : move.tickets())
 					MRX = MRX.give(t);
 			}
@@ -373,20 +353,19 @@ private static ImmutableSet<Move.SingleMove> makeSingleMoves(
 		}
 
 
-
 		private ImmutableSet<Piece> winerget() {
 			Set<Piece> win = new HashSet<>();
-			int size = 0;
+			int cantmovedetective = 0;
 			Iterator<Player> itp = detectives.iterator();
 			while (itp.hasNext()) {
 				Player p = itp.next();
 				if (makeSingleMoves(setup, detectives, p, p.location()).isEmpty())
-					size++;
+					cantmovedetective++;
 			}
 			if (this.log.size() == setup.moves.size() && this.remaining.contains(mrX.piece())) {
 
 				win.add(mrX.piece());
-			} else if (size == detectives.size()) {
+			} else if (cantmovedetective== detectives.size()) {
 				win.add(mrX.piece());
 			}
 //-------------------------------------------------------
@@ -397,7 +376,6 @@ private static ImmutableSet<Move.SingleMove> makeSingleMoves(
 				}
 			return ImmutableSet.copyOf(win);
 		}
-
 	}
 //-------------------------------------
 	@Nonnull @Override public GameState build(
@@ -408,7 +386,5 @@ private static ImmutableSet<Move.SingleMove> makeSingleMoves(
 		//throw new RuntimeException("Implement me!");
 		MyGameState S=new MyGameState(setup, ImmutableSet.of(Piece.MrX.MRX), ImmutableList.of(), mrX, detectives);
 		return S;
-
 	}
-
 }
